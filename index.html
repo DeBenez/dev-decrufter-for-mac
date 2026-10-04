@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dev Decrufter for Mac — Phase Launcher</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #090d14;
+      color: #edf4ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at 11% 4%, #174b42 0, transparent 23rem),
+        radial-gradient(circle at 88% 0%, #182b59 0, transparent 31rem),
+        linear-gradient(115deg, #090d14 0%, #101a2a 52%, #090d14 100%);
+      min-height: 100vh;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 72px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 16px; }
+    .brand-mark {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      flex: 0 0 auto;
+      border: 1px solid #4fe0b0aa;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #1e8d72, #12538a);
+      box-shadow: 0 10px 32px #00be8040, inset 0 1px #c4fff055;
+    }
+    .brand-mark::before, .brand-mark::after { content: ''; position: absolute; border-radius: 50%; }
+    .brand-mark::before { width: 21px; height: 21px; border: 3px solid #ecfff8; border-top-color: transparent; transform: rotate(-38deg); }
+    .brand-mark::after { width: 7px; height: 7px; background: #ecfff8; box-shadow: 11px 4px 0 -1px #ecfff8; }
+
+    .eyebrow {
+      color: #7ee787;
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+
+    h1 { margin: 0; font-size: clamp(1.75rem, 4vw, 2.65rem); letter-spacing: -.05em; }
+    h1 span { color: #91e6cb; }
+    .subtitle { max-width: 650px; color: #aebdce; line-height: 1.55; margin: 12px 0 0; }
+
+    .mode {
+      flex: 0 0 auto;
+      border: 1px solid #34516d;
+      background: #101b2add;
+      border-radius: 16px;
+      padding: 13px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: .9rem;
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 11px 14px; align-items: center; }
+    .legend-item { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; color: #b8c8d8; }
+    .legend-swatch { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .legend-swatch.preview { background: #65b8ef; box-shadow: 0 0 0 3px #65b8ef24; }
+    .legend-swatch.clean { background: #42d391; box-shadow: 0 0 0 3px #42d39124; }
+    .legend-label { color: #edf4ff; font-weight: 750; }
+
+    .dashboard-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 30px 0 14px; }
+    .dashboard-bar h2 { margin: 0; font-size: 1.1rem; letter-spacing: -.02em; }
+    .phase-count { color: #8ea4bc; font-size: .82rem; }
+    .notice {
+      border: 1px solid #2b6381;
+      background: linear-gradient(90deg, #0e3445c9, #10283a99);
+      color: #b6e3ff;
+      border-radius: 14px;
+      padding: 13px 16px 13px 47px;
+      margin-bottom: 0;
+      font-size: .92rem;
+      line-height: 1.45;
+      position: relative;
+    }
+    .notice::before { content: 'i'; display: grid; place-items: center; position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; border: 1px solid #7bd8ff; border-radius: 50%; font-weight: 800; font-family: Georgia, serif; }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+    }
+
+    .notice + .phase-grid { margin-top: 24px; }
+
+    .phase {
+      background: linear-gradient(145deg, #172231ed, #101720ed);
+      border: 1px solid #2b4055;
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 202px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 25px #03060d26;
+      transition: border-color .15s, transform .15s, background .15s, box-shadow .15s;
+    }
+
+    .phase:hover { border-color: #4c8eb6; transform: translateY(-3px); background: #1b2938; box-shadow: 0 18px 35px #03060d55; }
+    .phase-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .phase-icon { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border: 1px solid #3f6d86; border-radius: 9px; color: #92e6c2; background: #153143; font: 700 .8rem/1 ui-monospace, monospace; }
+    .phase h2 { font-size: 1.05rem; margin: 0; letter-spacing: -.02em; }
+    .phase p { color: #a3b2c2; font-size: .9rem; line-height: 1.45; margin: 0; flex: 1; }
+    .tag { color: #f2cc60; font-size: .72rem; font-weight: 750; margin: 12px 0 0; text-transform: uppercase; letter-spacing: .07em; }
+    .phase-actions { display: flex; gap: 9px; margin-top: 17px; }
+
+    button {
+      appearance: none;
+      border: 1px solid #3fb950;
+      background: linear-gradient(135deg, #209760, #187a77);
+      color: white;
+      border-radius: 8px;
+      padding: 8px 11px;
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) { background: linear-gradient(135deg, #28aa6c, #218a8a); }
+    button.preview { background: transparent; border-color: #3a7cba; color: #b6e3ff; }
+    button.preview:hover:not(:disabled) { background: #18314b; }
+    button:focus-visible, summary:focus-visible { outline: 3px solid #7bd8ff; outline-offset: 3px; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    #result {
+      display: none;
+      margin-top: 28px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    #result.visible { display: block; }
+    #result[data-state="error"] { border-color: #f85149; }
+    #result[data-state="success"] { border-color: #3fb950; }
+    #result-header { padding: 14px 17px; font-weight: 750; border-bottom: 1px solid #30363d; }
+    pre { margin: 0; padding: 17px; white-space: pre-wrap; overflow-wrap: anywhere; color: #c9d1d9; font: .82rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; max-height: 390px; overflow: auto; }
+
+    .history { margin-top: 38px; }
+    .history h2 { margin: 0 0 12px; font-size: 1.2rem; }
+    .history-list { display: grid; gap: 9px; }
+    .history-empty { color: #9da7b3; padding: 18px; border: 1px dashed #30363d; border-radius: 12px; }
+    details {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    details.success { border-left: 3px solid #3fb950; }
+    details.failed { border-left: 3px solid #f85149; }
+    summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 13px 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .history-name { font-weight: 750; flex: 1; }
+    .history-meta { color: #9da7b3; font-size: .82rem; }
+    .status { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+    .status.success { color: #7ee787; }
+    .status.failed { color: #ff7b72; }
+    details pre { border-top: 1px solid #30363d; max-height: 260px; }
+
+    @media (max-width: 620px) {
+      main { width: min(100% - 24px, 1120px); padding-top: 28px; }
+      header { align-items: start; flex-direction: column; }
+      .mode { width: 100%; }
+      .phase-grid { grid-template-columns: 1fr; }
+      .dashboard-bar { align-items: start; flex-direction: column; gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <p class="eyebrow">Local developer cleanup</p>
+          <h1>Dev Decrufter <span>for Mac</span></h1>
+          <p class="subtitle">Run individual cleanup phases from <code>cleanup.sh</code>. Use Preview to inspect what each phase would do before making changes.</p>
+        </div>
+      </div>
+      <div class="mode">
+        <div class="legend" aria-label="Action legend">
+          <span class="legend-item"><span class="legend-swatch preview" aria-hidden="true"></span><span><span class="legend-label">Preview</span> inspect changes</span></span>
+          <span class="legend-item"><span class="legend-swatch clean" aria-hidden="true"></span><span><span class="legend-label">Clean now</span> remove files</span></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-bar">
+      <h2>Cleanup dashboard</h2>
+      <span id="phase-count" class="phase-count">Loading cleanup phases…</span>
+    </div>
+    <div class="notice">This UI only listens on your computer (<code>127.0.0.1</code>) and can execute only the listed cleanup phases. Destructive actions require an explicit confirmation.</div>
+
+    <section id="phase-grid" class="phase-grid" aria-label="Cleanup phases"></section>
+
+    <section id="result" aria-live="polite">
+      <div id="result-header">Output</div>
+      <pre id="output"></pre>
+    </section>
+
+    <section class="history" aria-labelledby="history-title">
+      <h2 id="history-title">Execution history</h2>
+      <div id="history-list" class="history-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const grid = document.querySelector('#phase-grid');
+    const result = document.querySelector('#result');
+    const resultHeader = document.querySelector('#result-header');
+    const output = document.querySelector('#output');
+    const historyList = document.querySelector('#history-list');
+    const phaseCount = document.querySelector('#phase-count');
+    let isRunning = false;
+    let phaseNames = new Map();
+
+    function setResult(state, title, text) {
+      result.className = 'visible';
+      result.dataset.state = state;
+      resultHeader.textContent = title;
+      output.textContent = text;
+      result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function setButtonsDisabled(disabled) {
+      document.querySelectorAll('button').forEach((button) => { button.disabled = disabled; });
+    }
+
+    function formatDate(timestamp) {
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'medium',
+      }).format(new Date(timestamp));
+    }
+
+    function renderHistory(history) {
+      historyList.replaceChildren();
+
+      if (history.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'history-empty';
+        empty.textContent = 'No cleanup commands have been run yet.';
+        historyList.append(empty);
+        return;
+      }
+
+      history.forEach((entry) => {
+        const item = document.createElement('details');
+        item.className = entry.success ? 'success' : 'failed';
+
+        const summary = document.createElement('summary');
+        const name = document.createElement('span');
+        name.className = 'history-name';
+        name.textContent = phaseNames.get(entry.phase) || entry.phase;
+
+        const mode = document.createElement('span');
+        mode.className = 'history-meta';
+        mode.textContent = entry.dryRun ? 'Preview' : 'Cleaned';
+
+        const date = document.createElement('span');
+        date.className = 'history-meta';
+        date.textContent = formatDate(entry.finishedAt);
+
+        const status = document.createElement('span');
+        status.className = `status ${entry.success ? 'success' : 'failed'}`;
+        status.textContent = entry.success ? 'Success' : 'Failed';
+
+        summary.append(name, mode, date, status);
+
+        const log = document.createElement('pre');
+        log.textContent = entry.output;
+
+        item.append(summary, log);
+        historyList.append(item);
+      });
+    }
+
+    async function loadHistory() {
+      try {
+        const response = await fetch('/api/history');
+        if (!response.ok) throw new Error('Could not load command history.');
+        const { history } = await response.json();
+        renderHistory(history);
+      } catch (error) {
+        historyList.replaceChildren();
+        const message = document.createElement('div');
+        message.className = 'history-empty';
+        message.textContent = error.message;
+        historyList.append(message);
+      }
+    }
+
+    async function launchPhase(phase, execute) {
+      if (isRunning) return;
+
+      if (execute && !window.confirm(`Run “${phase.name}”? This will permanently remove the files managed by this cleanup phase.`)) {
+        return;
+      }
+
+      isRunning = true;
+      setButtonsDisabled(true);
+      setResult('', `Running ${phase.name}…`, 'Waiting for cleanup.sh to finish…');
+
+      try {
+        const response = await fetch('/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phase: phase.id, dryRun: !execute }),
+        });
+        const data = await response.json();
+        const title = response.ok
+          ? `${phase.name} ${execute ? 'completed' : 'preview completed'}`
+          : `${phase.name} failed`;
+        setResult(response.ok ? 'success' : 'error', title, data.output || data.error || 'No output was produced.');
+        await loadHistory();
+      } catch (error) {
+        setResult('error', `${phase.name} failed`, `Could not contact the local server.\n${error.message}`);
+      } finally {
+        isRunning = false;
+        setButtonsDisabled(false);
+      }
+    }
+
+    function makePhaseCard(phase) {
+      const card = document.createElement('article');
+      card.className = 'phase';
+
+      const heading = document.createElement('div');
+      heading.className = 'phase-heading';
+
+      const icon = document.createElement('span');
+      icon.className = 'phase-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = phaseIcon(phase.id);
+
+      const title = document.createElement('h2');
+      title.textContent = phase.name;
+
+      const description = document.createElement('p');
+      description.textContent = phase.description;
+
+      heading.append(icon, title);
+      card.append(heading, description);
+
+      if (phase.warning) {
+        const warning = document.createElement('div');
+        warning.className = 'tag';
+        warning.textContent = 'Extra care required';
+        card.append(warning);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'phase-actions';
+
+      const preview = document.createElement('button');
+      preview.className = 'preview';
+      preview.textContent = 'Preview';
+      preview.addEventListener('click', () => launchPhase(phase, false));
+
+      const clean = document.createElement('button');
+      clean.textContent = 'Clean now';
+      clean.addEventListener('click', () => launchPhase(phase, true));
+
+      actions.append(preview, clean);
+      card.append(actions);
+      return card;
+    }
+
+    function phaseIcon(id) {
+      const icons = {
+        homebrew: '⌘',
+        'xcode-derived-data': '⌘',
+        'xcode-derived-data-workaround': '⌘',
+        'xcode-archives': '▣',
+        'unavailable-simulators': '◫',
+        'core-simulator-caches': '◌',
+        'cocoapods-cache': '◈',
+        'npm-cache': 'N',
+        'yarn-cache': 'Y',
+        'macos-app-caches': '◒',
+        spotlight: '⌕',
+        'gradle-caches': 'G',
+        'gradle-daemon': 'G',
+        'android-studio': 'A',
+      };
+      return icons[id] || '·';
+    }
+
+    async function loadPhases() {
+      try {
+        const response = await fetch('/api/phases');
+        if (!response.ok) throw new Error('The server did not return the available phases.');
+        const { phases } = await response.json();
+        phaseNames = new Map(phases.map((phase) => [phase.id, phase.name]));
+        phaseCount.textContent = `${phases.length} focused cleanup phases`;
+        phases.forEach((phase) => grid.append(makePhaseCard(phase)));
+        await loadHistory();
+      } catch (error) {
+        setResult('error', 'Unable to load cleanup phases', error.message);
+      }
+    }
+
+    loadPhases();
+  </script>
+</body>
+</html>

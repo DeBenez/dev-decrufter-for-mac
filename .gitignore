@@ -1,0 +1,12 @@
+
+# graphify-axet
+.graphify/
+
+# Local runtime data and editor backups
+cleanup-history.json
+.history/
+
+# Local environment files
+.env
+.env.*
+!.env.example
